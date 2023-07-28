@@ -1,0 +1,35 @@
+.button {
+  padding: 10px 15px;
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  transition: 0.05s ease-in;
+  box-shadow: 0 5px #666;
+  cursor: pointer;
+
+  &_login {
+    background-color: #4caf50;
+
+    &:hover {
+      transform: scale(1.10);
+    }
+
+    &:active {
+      background-color: #3e8e41;
+      box-shadow: 0 3px #333;
+    }
+  }
+
+  &_upload {
+    background-color: #faeb19;
+
+    &:hover {
+      transform: scale(1.10);
+    }
+
+    &:active {
+      background-color: #b1a612;
+      box-shadow: 0 3px #333;
+    }
+  }
+}

@@ -1,0 +1,27 @@
+.header {
+  background-color: #ffffff;
+  width: 100%;
+
+  &__wrapper {
+    position: relative;
+    max-width: 1280px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    @media (max-width: 640px) {
+      justify-content: center;
+    }
+  }
+
+  &__logo {
+    padding: 20px;
+    width: 200px;
+
+    @media (max-width: 300px) {
+      width: 100%;
+    }
+  }
+}
