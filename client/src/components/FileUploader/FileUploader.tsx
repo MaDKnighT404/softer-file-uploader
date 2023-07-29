@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button } from '../Button';
-import { Loader } from '../Loader';
+import { Button } from '../UI/Button';
+import { Loader } from '../UI/Loader';
+import { InputFile } from '../UI/InputFile';
 import styles from './FileUploader.module.scss';
 
 const MAX_FILES = 100;
 
 const FileUploader = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [allFilesIsLoading, setAllFilesIsLoading] = useState(false);
+
   const [token, setToken] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [fileNames, setFileNames] = useState<string[]>(['Файлы не выбраны']);
-  const [isLoading, setIsLoading] = useState(false);
-  const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+  const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   const handleLogin = () => {
-    const client_id = 'b0bf6db8b1dd4cdb8f543735c5e062bd';
-    const redirect_uri = 'http://localhost:5173/';
+    const client_id = import.meta.env.VITE_CLIENT_ID;
+    const redirect_uri = import.meta.env.VITE_REDIRECT_URI;
     const url = `https://oauth.yandex.com/authorize?response_type=token&client_id=${client_id}&redirect_uri=${redirect_uri}`;
 
     window.location.href = url;
@@ -47,7 +50,6 @@ const FileUploader = () => {
             `${backendURL}/upload?url=${uploadUrl}&type=${file.type}&token=${token}`,
             file
           );
-
         } catch (error) {
           console.error(error);
         }
@@ -55,7 +57,7 @@ const FileUploader = () => {
       setIsLoading(false);
       setFiles([]);
       setFileNames(['Файлы не выбраны']);
-
+      setAllFilesIsLoading((prev) => !prev);
     } else {
       alert(`Пожалуйста, выберите файлы для отправки`);
     }
@@ -78,6 +80,22 @@ const FileUploader = () => {
     }
   };
 
+  const handlerAllFilesIsLoadingToggle = () => {
+    setAllFilesIsLoading((prev) => !prev);
+  };
+
+  if (allFilesIsLoading)
+    return (
+      <div className={styles.fileuploader}>
+        <h2> Загрузка файлов завершена!</h2>
+        <Button
+          title="Загрузить ещё"
+          onClick={handlerAllFilesIsLoadingToggle}
+          className="button_login"
+        />
+      </div>
+    );
+
   return (
     <div className={styles.fileuploader}>
       {!token && (
@@ -87,19 +105,7 @@ const FileUploader = () => {
         <>
           {!isLoading ? (
             <div className={styles.fileuploader__controls}>
-              <div className={styles.input__wrapper}>
-                <input
-                  name="file"
-                  type="file"
-                  id="input__file"
-                  className={styles.input__file}
-                  multiple
-                  onChange={handleFileChange}
-                />
-                <label htmlFor="input__file" className={styles.input__file_button}>
-                  <span className="input__file-button-text">Выберите файл</span>
-                </label>
-              </div>
+              <InputFile onChange={handleFileChange} />
               <Button title="Загрузить файлы" onClick={handleFileUpload} className="button_login" />
             </div>
           ) : (
@@ -110,8 +116,8 @@ const FileUploader = () => {
       <div className={styles.fileuploader__filenames}>
         {token &&
           !isLoading &&
-          //тут не изменяемый список формируется, так что можно вообще оставить один индекс внутри key.
-          fileNames.map((file, index) => <span key={`${file} + ${index}`}>{file}</span>)}
+          //в данном случае можно использовать index в качестве key, потому что мы никогда не изменяем порядок файлов. Но в реальном проекте я бы всё равно использовал nanoid (причем вызов nanoid было бы не тут в key, а в стейте...)
+          fileNames.map((file, index) => <span key={index}>{file}</span>)}
       </div>
     </div>
   );
