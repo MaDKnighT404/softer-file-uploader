@@ -17,21 +17,21 @@ const FileUploader = () => {
   const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   const handleLogin = () => {
-    window.location.href = `${backendURL}/api/auth`;
+    const client_id = import.meta.env.VITE_CLIENT_ID;
+    const redirect_uri = import.meta.env.VITE_REDIRECT_URI;
+    const url = `https://oauth.yandex.com/authorize?response_type=token&client_id=${client_id}&redirect_uri=${redirect_uri}`;
+
+    window.location.href = url;
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${backendURL}/api/auth/token`);
-        setToken(response.data.token);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, [backendURL]);
+    const urlParams = new URLSearchParams(window.location.hash);
+    const accessToken = urlParams.get('#access_token');
+    if (accessToken) {
+      setToken(accessToken);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleFileUpload = async () => {
     if (files.length > 0) {
@@ -116,6 +116,7 @@ const FileUploader = () => {
       <div className={styles.fileuploader__filenames}>
         {token &&
           !isLoading &&
+          //в данном случае можно использовать index в качестве key, потому что мы никогда не изменяем порядок файлов. Но в реальном проекте я бы всё равно использовал nanoid (причем вызов nanoid было бы не тут в key, а в стейте...)
           fileNames.map((file, index) => <span key={index}>{file}</span>)}
       </div>
     </div>
